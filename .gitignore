@@ -1,0 +1,9 @@
+*/*.swap
+*/*.o
+*/*.tex
+*/*.pdf
+*/CMakeFiles/
+*/*.cmake
+*/*.dat
+*/*.ps
+*/CMakeCache.txt
