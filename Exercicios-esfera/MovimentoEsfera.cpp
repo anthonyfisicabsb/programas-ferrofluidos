@@ -4,10 +4,8 @@
 #include <cmath>
 #include <iostream>
 
-using namespace std;
-
 #define SIZE 3 /* Tamanho da matriz */
-#define NUM 2 /* Número de partículas  */
+#define NUM 25 /* Número de partículas  */
 
 /* Função para rotacionar matriz */
 void rotMat(float mat[][SIZE],
@@ -47,9 +45,9 @@ int main (void)
     float diam = 5.0f; // diâmetro da partícula
     float drmax;
 
-    Lx = Ly = Lz = 50.0f;
+    Lx = Ly = Lz = 100.0f;
 
-    drmax = 0.4f; // constante de deslocamento
+    drmax = 0.6f; // constante de deslocamento
 
     config = fopen("resultados.txt", "w"); // abrindo arquivo de texto
     config2 = fopen("caixa.txt", "w"); 
@@ -75,7 +73,7 @@ int main (void)
 
     createVetRot(vetRot); // criando vetor de rotação
 
-    dangmax = 0.2f;
+    dangmax = 0.4f;
 
     for(int i=0; i<NUM; i++) {
         normalizaVet(particulas[i].m);
@@ -83,9 +81,9 @@ int main (void)
 
     normalizaVet(vetRot);
  
-    fprintf(config, "2\n"); // adicionar número de partículas
+    fprintf(config, "25\n"); // adicionar número de partículas
 
-    for(int count = 0; count < 1001; count++) {
+    for(int count = 0; count < 6001; count++) {
         for(int i=0; i<NUM; i++){
             createMatrix(matrixRot, dangmax*2*((float)rand()/RAND_MAX -0.5f), vetRot);
             rotMat(matrixRot, particulas[i].m);
@@ -108,6 +106,13 @@ int main (void)
                     particulas[i].r[1] = particulas[k].r[1] + diam/2.0;
                     particulas[i].r[2] = particulas[k].r[1] + diam/2.0;
                 }
+
+                for(int l=0; l<3; l++) {
+                    if(particulas[i].r[l] > Lx)
+                        particulas[i].r[l] -= Lx;
+                    else if(particulas[i].r[l] < 0)
+                        particulas[i].r[l] += Lx;
+                }
             }
 
             fprintf(config, "%f %f %f %f %f %f %f\n", diam, particulas[i].r[0], particulas[i].r[1], particulas[i].r[2],
@@ -125,7 +130,7 @@ void createVetPos(float r[], float L, float raio)
     float size = L - 2*raio;
 
     for(int i=0; i<3; i++) {
-        r[i] = size*((float)rand()/RAND_MAX + raio);
+        r[i] = size*((float)rand()/RAND_MAX) + raio;
     }
 }
 void rotMat(float mat[][SIZE],
