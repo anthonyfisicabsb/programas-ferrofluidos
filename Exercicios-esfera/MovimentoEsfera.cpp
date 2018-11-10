@@ -1,58 +1,49 @@
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
-#include <cmath>
-#include <iostream>
-
-#define SIZE 3 /* Tamanho da matriz */
-#define NUM 25 /* Número de partículas  */
-
-/* Função para rotacionar matriz */
-void rotMat(float mat[][SIZE],
-            float vet[]);
-
-/* Função para normalizar vetor */
-void normalizaVet(float vet[]);
-
-/*Função para criar matriz*/
-void createMatrix(float mat[][SIZE],
-                  float ang,
-                  float vet[]);
-
-/* Função para criar vetor de rotação */
-void createVetRot(float vet[]);
-
-/* Função que calcula a distancia entre duas partículas  */
-float distanciaParticula(float d1[], float d2[]);
-
-void createVetPos(float r[], float L, float raio);
-
-struct particula {
-    float r[SIZE]; // posicao da partícula
-    float m[3]; // momento magnético da partícula
-}; // estrtutura que representa a partícula
+#include "funcoes.h"
 
 int main (void)
 {
-    srand(time(NULL)); // semente dos números aleatórios
-    float dangmax; // variação angular máxima
-    FILE *config;
-    float vetRot[SIZE]; // vetor de rotação
-    float matrixRot[SIZE][SIZE];
-    float Lx, Ly, Lz; // lados da caixa
-    FILE *config2;
-    struct particula particulas[NUM];
-    float diam = 5.0f; // diâmetro da partícula
-    float drmax;
+    srand(time(NULL));
 
-    Lx = Ly = Lz = 100.0f;
+    FILE *config; // arquivo para guardar resultados
+    FILE *config2; // arquivo para guardar configurações da caixa
+    FILE *config3; // arquivo para guardar energias
+    FILE *variaveis; // arquivo para ler variaveis
 
-    drmax = 0.6f; // constante de deslocamento
+    double dangmax; // variação angular máxima
+    double vetRot[SIZE]; // vetor de rotação
+    double matrixRot[SIZE][SIZE];
+    double Lx, Ly, Lz; // lados da caixa
+    double diam; // diâmetro da partícula
+    double drmax; // constante de deslocamento
+    double C_MAG; // magnetização da partícula
 
-    config = fopen("resultados.txt", "w"); // abrindo arquivo de texto
-    config2 = fopen("caixa.txt", "w"); 
+    int NUM; // numero de particulas
+    int qtdIter; // número de iterações
 
-    fprintf(config2, "%f %f %f\n", Lx, Ly, Lz); // dimensões da caixa
+    config = fopen("resultados.txt", "w"); 
+    config2 = fopen("caixa.txt", "w");
+    config3 = fopen("energias.dat", "w");
+    variaveis = fopen("variaveis.txt", "r");
+
+    fscanf(variaveis, "%lf", &drmax);
+    fscanf(variaveis, "%lf", &dangmax);
+    fscanf(variaveis, "%lf", &diam);
+    fscanf(variaveis, "%lf", &Lx);
+    fscanf(variaveis, "%lf", &Ly);
+    fscanf(variaveis, "%lf", &Lz); 
+    fscanf(variaveis, "%d", &NUM);
+    fscanf(variaveis, "%lf", &C_MAG);
+    fscanf(variaveis, "%d", &qtdIter);
+
+    fclose(variaveis);
+
+    struct particula particulas[NUM]; // criando array de partículas
+
+    fprintf(config2, "%lf %lf %lf\n", Lx, Ly, Lz);
+    fclose(config2);
 
     /* Declarando posições iniciais das coordenadas */
     for(int i=0; i<NUM; i++) {
@@ -64,134 +55,91 @@ int main (void)
         }
     }
 
-    /* Declarando as variáveis iniciais do momento magnético */
+    /* Declarando as variáveis iniciais do versor momento magnético */
     for(int i=0; i<NUM; i++) {
         for(int j=0; j<3; j++) {
-            particulas[i].m[j] = (float)rand()/RAND_MAX;
+            particulas[i].m[j] = (double)rand()/RAND_MAX;
         }
     }
-
-    createVetRot(vetRot); // criando vetor de rotação
-
-    dangmax = 0.4f;
 
     for(int i=0; i<NUM; i++) {
         normalizaVet(particulas[i].m);
     }
 
-    normalizaVet(vetRot);
- 
-    fprintf(config, "25\n"); // adicionar número de partículas
+    /* Definindo o volume e o vetor momento magnético da partícula */
+    const double VOLUME = (diam*diam*diam)* (M_PI/6.0) * 1e-27;
+    const double MAGZ = VOLUME * C_MAG;
 
-    for(int count = 0; count < 6001; count++) {
+    for(int i=0; i<NUM; i++){
+        particulas[i].magz[0] = particulas[i].m[0] * MAGZ;
+        particulas[i].magz[1] = particulas[i].m[1] * MAGZ;
+        particulas[i].magz[2] = particulas[i].m[2] * MAGZ;
+    }
+
+    double energia = sumEnergia(particulas, NUM);
+    printf("%g\n", energia);
+
+    fprintf(config, "%d\n", NUM); // adicionar número de partículas ao arquivo
+
+    int count = 0;
+
+    do {
         for(int i=0; i<NUM; i++){
-            createMatrix(matrixRot, dangmax*2*((float)rand()/RAND_MAX -0.5f), vetRot);
-            rotMat(matrixRot, particulas[i].m);
             createVetRot(vetRot);
+            normalizaVet(vetRot);
+
+            createMatrix(matrixRot, dangmax*2*((double)rand()/RAND_MAX -0.5f), vetRot);
+            rotMat(matrixRot, particulas[i].m);
 
             normalizaVet(particulas[i].m);
-            normalizaVet(vetRot);
+
+            particulas[i].r[0] += drmax*2.0f*((double)rand()/RAND_MAX -0.5f);
+            particulas[i].r[1] += drmax*2.0f*((double)rand()/RAND_MAX -0.5f);
+            particulas[i].r[2] += drmax*2.0f*((double)rand()/RAND_MAX -0.5f);
 
             for(int k=0; k<NUM; k++) {
 
                 if(k == i)
                     continue;
 
-                particulas[i].r[0] += drmax*2.0f*((float)rand()/RAND_MAX -0.5f);
-                particulas[i].r[1] += drmax*2.0f*((float)rand()/RAND_MAX -0.5f);
-                particulas[i].r[2] += drmax*2.0f*((float)rand()/RAND_MAX -0.5f);
-
+                /* Verifica se não há sobreposição de partículas*/
                 if(distanciaParticula(particulas[i].r, particulas[k].r) <= diam/2.0){
                     particulas[i].r[0] = particulas[k].r[0] + diam/2.0;
                     particulas[i].r[1] = particulas[k].r[1] + diam/2.0;
-                    particulas[i].r[2] = particulas[k].r[1] + diam/2.0;
+                    particulas[i].r[2] = particulas[k].r[2] + diam/2.0;
                 }
+            }   
 
-                for(int l=0; l<3; l++) {
-                    if(particulas[i].r[l] > Lx)
-                        particulas[i].r[l] -= Lx;
-                    else if(particulas[i].r[l] < 0)
-                        particulas[i].r[l] += Lx;
+            /* Verifica se partícula não saiu da caixa */
+            for(int l=0; l<3; l++) {
+                if(particulas[i].r[l] + diam/2.0 > Lx){
+                    particulas[i].r[l] = 2*Lx - diam -particulas[i].r[l];
+                }else if(particulas[i].r[l] - diam/2.0 < 0){
+                    particulas[i].r[l] = diam - particulas[i].r[l];
                 }
             }
-
-            fprintf(config, "%f %f %f %f %f %f %f\n", diam, particulas[i].r[0], particulas[i].r[1], particulas[i].r[2],
-                    particulas[i].m[0], particulas[i].m[1], particulas[i].m[2]);
         }
-    }
+
+        double energiaAtual = sumEnergia(particulas, NUM);
+
+        /* Verifica se iteração é válida */
+        if(aceitaIteracao(energia, energiaAtual))
+            energia = energiaAtual;
+        else{
+            continue;
+        }
+
+        fprintf(config3,"%d\t%g\n", count, energia);
+        printParticula(config, particulas, diam, NUM);
+
+        printf("%i\n", count);
+
+        count++;
+    }while(count <= qtdIter);
 
     /* fechando os arquivos */
     fclose(config);
-    fclose(config2);
+    fclose(config3);
+
     return EXIT_SUCCESS;
-}
-void createVetPos(float r[], float L, float raio)
-{
-    float size = L - 2*raio;
-
-    for(int i=0; i<3; i++) {
-        r[i] = size*((float)rand()/RAND_MAX) + raio;
-    }
-}
-void rotMat(float mat[][SIZE],
-            float vetor[])
-{
-    vetor[0] = mat[0][0]*vetor[0] + mat[0][1]*vetor[1] + mat[0][2]*vetor[2];
-    vetor[1] = mat[1][0]*vetor[0] + mat[1][1]*vetor[1] + mat[1][2]*vetor[2];
-    vetor[2] = mat[2][0]*vetor[0] + mat[2][1]*vetor[1] + mat[2][2]*vetor[2];
-}
-
-void createMatrix(float mat[][SIZE],
-                  float ang,
-                  float vet[])
-{
-    mat[0][0] = cos(ang) + (1 - cos(ang))*vet[0]*vet[0];
-    mat[0][1] = (1-cos(ang))*vet[0]*vet[1] + sin(ang)*vet[2];
-    mat[0][2] = (1-cos(ang))*vet[0]*vet[2] - sin(ang)*vet[1];
-
-    mat[1][0] = (1-cos(ang))*vet[1]*vet[0] - sin(ang)*vet[2];
-    mat[1][1] = cos(ang) + (1-cos(ang))*vet[1]*vet[1];
-    mat[1][2] = (1-cos(ang))*vet[1]*vet[2] + sin(ang)*vet[0];
-
-    mat[2][0] = (1-cos(ang))*vet[2]*vet[0] + sin(ang)*vet[1];
-    mat[2][1] = (1-cos(ang))*vet[2]*vet[1] - sin(ang)*vet[0];
-    mat[2][2] = cos(ang) + (1-cos(ang))*vet[2]*vet[2];
-
-    return;
-}
-
-void normalizaVet(float vetor[])
-{
-    float modulo = 0.0f;    
-
-    for(int i=0; i<SIZE; i++){
-        modulo += vetor[i]*vetor[i];
-    }
-
-    modulo = sqrt(modulo);
-
-    for(int i=0; i<SIZE; i++){
-        vetor[i] = vetor[i]/modulo;
-    }
-
-    return;
-}
-
-void createVetRot(float vetRot[])
-{
-    /* Declarando variáveis iniciais do vetor de rotação */
-    vetRot[0] = (float)rand()/RAND_MAX;
-    vetRot[1] = (float)rand()/RAND_MAX;
-    vetRot[2] = (float)rand()/RAND_MAX;
-}
-float distanciaParticula(float d1[], 
-                         float d2[]) 
-{
-    float sum = 0.0;
-
-    for(int i=0; i<3; i++) {
-        sum += (d1[i]-d2[i])*(d1[i]-d2[i]);
-    }
-
-    return sqrt(sum);
 }
