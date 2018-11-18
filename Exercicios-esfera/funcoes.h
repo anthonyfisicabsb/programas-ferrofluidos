@@ -59,6 +59,8 @@ double prodEscalar(double vet[], double vet2[])
     for(int i=0; i<SIZE; i++) {
         retorno += vet[i]*vet2[i];
     }
+
+    return retorno;
 }
 
 void multConstVet(double vet[], double k)
