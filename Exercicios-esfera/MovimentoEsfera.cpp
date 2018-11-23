@@ -19,6 +19,7 @@ int main (void)
     double diam; // diâmetro da partícula
     double drmax; // constante de deslocamento
     double C_MAG; // magnetização da partícula
+    double temperatura;
 
     int NUM; // numero de particulas
     int qtdIter; // número de iterações
@@ -36,15 +37,16 @@ int main (void)
     fscanf(variaveis, "%lf", &Lz); 
     fscanf(variaveis, "%d", &NUM);
     fscanf(variaveis, "%lf", &C_MAG);
+    fscanf(variaveis, "%lf", &temperatura);
     fscanf(variaveis, "%d", &qtdIter);
 
     fclose(variaveis);
 
-    struct particula particulas[NUM]; // criando array de partículas
-
     fprintf(config2, "%lf %lf %lf\n", Lx, Ly, Lz);
     fclose(config2);
 
+    struct particula particulas[NUM]; // criando array de partículas
+    
     /* Declarando posições iniciais das coordenadas */
     for(int i=0; i<NUM; i++) {
         createVetPos(particulas[i].r, Lx, diam/2.0);
@@ -123,7 +125,7 @@ int main (void)
         double energiaAtual = sumEnergia(particulas, NUM);
 
         /* Verifica se iteração é válida */
-        if(aceitaIteracao(energia, energiaAtual))
+        if(aceitaIteracao(energia, energiaAtual, temperatura))
             energia = energiaAtual;
         else{
             continue;

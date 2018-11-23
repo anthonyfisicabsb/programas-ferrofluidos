@@ -33,7 +33,7 @@ void printParticula(FILE *arquivo, struct particula vet[], double diam,
 
 double sumEnergiaZema(struct particula part[], int NUM);
 
-bool aceitaIteracao(double energia, double energiaAtual);
+bool aceitaIteracao(double energia, double energiaAtual, double temperatura);
 
 double energiaIter(double m1[], double m2[], double r1[], double r2[])
 {
@@ -196,14 +196,16 @@ void printParticula(FILE* arquivo,
 }
 
 /* Função que aplica o algoritmo de Metropolis */
-bool aceitaIteracao(double energia, double energiaAtual)
+bool aceitaIteracao(double energia, 
+		    double energiaAtual,
+		    double temperatura)
 {
     if(energiaAtual < energia)
         return true;
 
     double aleatorio = (double)rand()/RAND_MAX;
 
-    double f = exp((energia-energiaAtual)/(1.38*1e-23*300));
+    double f = exp((energia-energiaAtual)/(1.38*1e-23*temperatura));
 
     if(f < aleatorio)
         return true;
