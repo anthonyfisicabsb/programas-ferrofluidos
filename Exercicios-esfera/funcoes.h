@@ -1,4 +1,3 @@
-#define SIZE 3 /* Tamanho da matriz */
 #include "particula.h"
 #include <cmath>
 
@@ -14,9 +13,9 @@ double moduloVetor(double vet[]);
 
 void createVetPos(double r[], double L, double raio);
 
-void rotMat(double mat[][SIZE], double vetor[]);
+void rotMat(double mat[][3], double vetor[]);
 
-void createMatrix(double mat[][SIZE], double ang, double vet[]);
+void createMatrix(double mat[][3], double ang, double vet[]);
 
 void normalizaVet(double vetor[]);
 
@@ -34,6 +33,8 @@ void printParticula(FILE *arquivo, struct particula vet[], double diam,
 double sumEnergiaZema(struct particula part[], int NUM);
 
 bool aceitaIteracao(double energia, double energiaAtual, double temperatura);
+
+void copiaStruct(struct particula particula1[], struct particula particula2[], int size);
 
 double energiaIter(double m1[], double m2[], double r1[], double r2[])
 {
@@ -56,7 +57,7 @@ double prodEscalar(double vet[], double vet2[])
 {
     double retorno = 0.0f;
 
-    for(int i=0; i<SIZE; i++) {
+    for(int i=0; i<3; i++) {
         retorno += vet[i]*vet2[i];
     }
 
@@ -65,7 +66,7 @@ double prodEscalar(double vet[], double vet2[])
 
 void multConstVet(double vet[], double k)
 {
-    for(int i=0; i<SIZE; i++) {
+    for(int i=0; i<3; i++) {
         vet[i] *= k;
     }
 }
@@ -74,7 +75,7 @@ double moduloVetor(double vet[])
 {
     double modulo = 0.0f;
 
-    for(int i=0; i<SIZE; i++){
+    for(int i=0; i<3; i++){
         modulo += vet[i]*vet[i];
     }
 
@@ -91,7 +92,7 @@ void createVetPos(double r[], double L, double raio)
         r[i] = size*((double)rand()/RAND_MAX) + raio;
     }
 }
-void rotMat(double mat[][SIZE],
+void rotMat(double mat[][3],
             double vetor[])
 {
     vetor[0] = mat[0][0]*vetor[0] + mat[0][1]*vetor[1] + mat[0][2]*vetor[2];
@@ -99,7 +100,7 @@ void rotMat(double mat[][SIZE],
     vetor[2] = mat[2][0]*vetor[0] + mat[2][1]*vetor[1] + mat[2][2]*vetor[2];
 }
 
-void createMatrix(double mat[][SIZE],
+void createMatrix(double mat[][3],
                   double ang,
                   double vet[])
 {
@@ -122,7 +123,7 @@ void normalizaVet(double vetor[])
 {
     double modulo = moduloVetor(vetor);
 
-    for(int i=0; i<SIZE; i++){
+    for(int i=0; i<3; i++){
         vetor[i] = vetor[i]/modulo;
     }
 
@@ -151,7 +152,7 @@ double distanciaParticula(double d1[],
 
 void sumVect(double vet1[], double vet2[])
 {
-    for(int i=0; i<SIZE; i++) {
+    for(int i=0; i<3; i++) {
         vet1[i] += vet2[i];
     }
 }
@@ -175,7 +176,7 @@ double sumEnergiaZema(struct particula part[],
                       int NUM)
 {
     double energia = 0.0;
-    double campoMag[] = {0.0f, 0.0f, 0.005f};
+    double campoMag[] = {0.0f, 0.0f, 0.5f};
 
     for(int i=0; i<NUM; i++) {
         energia += prodEscalar(part[i].magz, campoMag);
@@ -211,4 +212,17 @@ bool aceitaIteracao(double energia,
         return true;
 
     return false;
+}
+
+void copiaStruct(struct particula origem[],
+		 struct particula destino[],
+		 int size)
+{
+    for(int i=0; i<size; i++){
+        for(int j=0; j<3; j++) {
+	     destino[i].r[j] = origem[i].r[j];
+	     destino[i].m[j] = origem[i].m[j];
+	     destino[i].magz[j] = origem[i].magz[j];
+	}
+    }
 }
