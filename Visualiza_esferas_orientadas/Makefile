@@ -1,6 +1,6 @@
 ##### C-OPENGL DEFINITIONS ####
 
-CFLAGS = -g -O2 -funroll-loops -ansi -pedantic -ffast-math -D_SVID_SOURCE -D_BSD_SOURCE -DSHM -I/usr/X11R6/include
+CFLAGS = -g -O3 -ansi -pedantic -ffast-math -D_SVID_SOURCE -D_BSD_SOURCE -DSHM -I/usr/X11R6/include -march=native -mtune=native
 CFLAGS2 = -Wdeprecated-declarations -Wdeclaration-after-statement
 CDEBUG = -ggdb
 

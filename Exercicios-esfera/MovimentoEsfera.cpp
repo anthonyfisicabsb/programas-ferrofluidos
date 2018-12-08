@@ -13,15 +13,18 @@ int main (void)
     FILE *variaveis; // arquivo para ler variaveis
 
     double dangmax; // variação angular máxima
-    double vetRot[SIZE]; // vetor de rotação
-    double matrixRot[SIZE][SIZE];
+    double vetRot[3]; // vetor de rotação
+    double matrixRot[3][3];
     double Lx, Ly, Lz; // lados da caixa
     double diam; // diâmetro da partícula
     double drmax; // constante de deslocamento
     double C_MAG; // magnetização da partícula
+    double temperatura; // temperatura em Kelvin da simulacao
 
     int NUM; // numero de particulas
     int qtdIter; // número de iterações
+    int aceito = 0; // funcao para calcular totais de iterações aceitas em um período
+    int periodo = 1; // contador do periodo
 
     config = fopen("resultados.txt", "w"); 
     config2 = fopen("caixa.txt", "w");
@@ -36,14 +39,16 @@ int main (void)
     fscanf(variaveis, "%lf", &Lz); 
     fscanf(variaveis, "%d", &NUM);
     fscanf(variaveis, "%lf", &C_MAG);
+    fscanf(variaveis, "%lf", &temperatura);
     fscanf(variaveis, "%d", &qtdIter);
 
     fclose(variaveis);
 
-    struct particula particulas[NUM]; // criando array de partículas
-
     fprintf(config2, "%lf %lf %lf\n", Lx, Ly, Lz);
     fclose(config2);
+
+    struct particula particulas[NUM]; // criando array de partículas
+    struct particula particulasAux[NUM]; //array auxiliar para o augoritmo de metropolis
 
     /* Declarando posições iniciais das coordenadas */
     for(int i=0; i<NUM; i++) {
@@ -77,13 +82,30 @@ int main (void)
     }
 
     double energia = sumEnergia(particulas, NUM);
-    printf("%g\n", energia);
 
     fprintf(config, "%d\n", NUM); // adicionar número de partículas ao arquivo
 
-    int count = 0;
+    int count = 1;
 
+    copiaStruct(particulas, particulasAux, NUM);
+
+    fprintf(config3,"%d\t%g\n", count, energia);
+    printParticula(config, particulas, diam, NUM);
+    
     do {
+	
+	if(periodo > 20){
+	    float aceitaRate = (float)aceito/periodo;
+
+	    if(aceitaRate <= 0.15)
+	        drmax = (drmax*1.2) > Lx*0.33 ? drmax : drmax*1.2;
+	    else if(aceitaRate >= 0.7)
+		drmax = (drmax*0.8) < 1e-2 ? drmax : drmax*0.8;
+
+	    periodo = 0;
+	    aceito = 0;
+	}
+
         for(int i=0; i<NUM; i++){
             createVetRot(vetRot);
             normalizaVet(vetRot);
@@ -122,12 +144,16 @@ int main (void)
 
         double energiaAtual = sumEnergia(particulas, NUM);
 
+	periodo++;
         /* Verifica se iteração é válida */
-        if(aceitaIteracao(energia, energiaAtual))
+        if(aceitaIteracao(energia, energiaAtual, temperatura)){
             energia = energiaAtual;
-        else{
-            continue;
-        }
+	    copiaStruct(particulas, particulasAux, NUM);
+	    aceito++;
+	}else{
+	    copiaStruct(particulasAux, particulas, NUM);
+	    continue;
+	}
 
         fprintf(config3,"%d\t%g\n", count, energia);
         printParticula(config, particulas, diam, NUM);
@@ -135,7 +161,7 @@ int main (void)
         printf("%i\n", count);
 
         count++;
-    }while(count <= qtdIter);
+    }while(count < qtdIter);
 
     /* fechando os arquivos */
     fclose(config);
