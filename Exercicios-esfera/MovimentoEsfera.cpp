@@ -97,10 +97,10 @@ int main (void)
 	if(periodo > 20){
 	    float aceitaRate = (float)aceito/periodo;
 
-	    if(aceitaRate <= 0.15)
-	        drmax = (drmax*1.2) > Lx*0.33 ? drmax : drmax*1.2;
-	    else if(aceitaRate >= 0.7)
-		drmax = (drmax*0.8) < 1e-2 ? drmax : drmax*0.8;
+	    if(aceitaRate <= 0.1)
+	        drmax = (drmax*1.1) > Lx*0.33 ? drmax : drmax*1.2;
+	    else if(aceitaRate >= 0.8)
+		drmax = (drmax*0.9) < 1e-2 ? drmax : drmax*0.8;
 
 	    periodo = 0;
 	    aceito = 0;
@@ -145,7 +145,9 @@ int main (void)
         double energiaAtual = sumEnergia(particulas, NUM);
 
 	periodo++;
-        /* Verifica se iteração é válida */
+        /* Verifica se iteração é válida de acordo com o algoritmo
+	 * de Metrópolis-Hasting
+	 */
         if(aceitaIteracao(energia, energiaAtual, temperatura)){
             energia = energiaAtual;
 	    copiaStruct(particulas, particulasAux, NUM);
