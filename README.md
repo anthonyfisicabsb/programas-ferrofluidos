@@ -1,4 +1,4 @@
-# Programas Ferrofluidos
+# Ferrofluids Simulation
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/c012bb2d84964054a4406ad9ec34cbb5)](https://app.codacy.com/app/anthony.physis/programas-ferrofluidos?utm_source=github.com&utm_medium=referral&utm_content=anthonyfisicabsb/programas-ferrofluidos&utm_campaign=Badge_Grade_Dashboard)
 
