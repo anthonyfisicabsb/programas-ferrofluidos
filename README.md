@@ -1,4 +1,7 @@
 # Programas Ferrofluidos
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c012bb2d84964054a4406ad9ec34cbb5)](https://app.codacy.com/app/anthony.physis/programas-ferrofluidos?utm_source=github.com&utm_medium=referral&utm_content=anthonyfisicabsb/programas-ferrofluidos&utm_campaign=Badge_Grade_Dashboard)
+
 ---
 Os ferrofluidos tem a sua origem na década de 60, na NASA, que desejava encontrar soluções que permitissem o controle do combustível na ausência de gravidade. Geralmente, eles são compostos de partículas magnéticas em escalas muito pequenas suspensas em fluidos e suas aplicações não se limitam apenas à área aerospacial, sendo possível utilizá-la na medicina e nos fármacos[1](https://www.ifi.unicamp.br/~lunazzi/F530_F590_F690_F809_F895/F809/F609_2010_sem2/RebeccaS-Happ_RF2.pdf).  
 Durante o curso de Física na Universidade de Brasília, as disciplinas de Tópicos Especiais são criadas para lecionar conteúdos que normalmente não estão inclusos na grade curricular do curso. Nessa disciplina de Tópicos Especiais, o professor [Leonardo Luiz e Castro](http://lattes.cnpq.br/9797910208314248) demonstrou algumas das características dos ferrofluidos e como consiste o processo de simulação utilizando algoritmos com números aleatórios. Para isso, utilizaremos o [OPENGL](https://www.opengl.org/) como ferramenta para visualizar as partículas e ver o comportamento do sistema durante o processo.
