@@ -28,12 +28,10 @@ glTranslatef(0.0f, 0.0f, HEIGHT); \
 gluDisk(QUAD, 0.0f, TOP, SLICES, 1); \
 glTranslatef(0.0f, 0.0f, -HEIGHT);
 
-
 char fileBoxName[50] = "caixa.txt";
 char fileParticlesName[50] = "resultados.txt";
 
-void init(void)
-{
+void init(void) {
     glClearColor(0.5f, 0.5f, 0.5f, 0.0);
     glEnable(GL_DEPTH_TEST);
     glShadeModel(GL_SMOOTH);
@@ -43,7 +41,6 @@ void init(void)
     GLfloat luzDifusa[4]={0.7,0.7,0.7,1.0};       /* "cor" */
     GLfloat luzEspecular[4]={1.0, 1.0, 1.0, 1.0};/* "brilho" */
     GLfloat posicaoLuz[4]={40.0, 20.0, 60.0, 1.0};
-    GLfloat posicaoLuz2[4]={5.0, 10.0, 10.0, 1.0};
 
     /* Capacidade de brilho do material */
     GLfloat especularidade[4]={1.0,1.0,1.0,1.0}; 
@@ -77,8 +74,7 @@ void init(void)
     glEnable(GL_DEPTH_TEST);
 }
 
-void display(void)
-{
+void display(void) {
     float Lx, Ly, Lz;
     float diam, rx, ry, rz, mx, my, mz;
     float raio, lado;
@@ -91,34 +87,25 @@ void display(void)
     FILE * fileBox;
     FILE * fileParticles;
 
-    char buf1[BUFSIZ] = "Garbage";
-    char buf2[BUFSIZ] = "Garbage";
-    char buf3[BUFSIZ] = "Garbage";
-
     fileBox = fopen(fileBoxName, "r");
     printf("\n fileBox: %s",fileBoxName);
 
     fileParticles = fopen(fileParticlesName, "r");
     printf("\n fileParticles: %s",fileParticlesName);
 
-    if (fileBox != NULL)
-    {
-        if(fscanf(fileBox, "%f %f %f", &Lx, &Ly, &Lz)==3)
-        {
+    if (fileBox != NULL)  {
+        if(fscanf(fileBox, "%f %f %f", &Lx, &Ly, &Lz)==3) {
             printf("\n Box sides: %f %f %f", Lx, Ly, Lz);
-        }
-        else
-        {
+        } else {
             printf("\n Failed to read from fileBox.\n");
         }
     }
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        fscanf(fileParticles, " %d", &nParticles);
+    fscanf(fileParticles, " %d", &nParticles);
 
-    while(fscanf(fileParticles, " %f %f %f %f %f %f %f", &diam, &rx, &ry, &rz, &mx, &my, &mz)==7)
-    {
+    while(fscanf(fileParticles, " %f %f %f %f %f %f %f", &diam, &rx, &ry, &rz, &mx, &my, &mz)==7) {
 
         GLdouble eqn0[nParticles][2][4];
 
@@ -128,37 +115,22 @@ void display(void)
         glLoadIdentity();
 
         /* Drawing particles: */
-
-        /*
-      printf("\n nParticles, nSurfactants, nIons: %d %d %d", nParticles, nSurfactants, nIons);
-      printf("\n Press Any Key to Continue \n");  
-      getchar();
-         */
-
-        for (iParticle = 0; iParticle < nParticles; iParticle++) 
-        {
-
-            if(iParticle == 0)
-            {
+        for (iParticle = 0; iParticle < nParticles; iParticle++) {
+            if(iParticle == 0) {
                 printf("\n D, rx, ry, rz, mx, my, mz: %f %f %f %f %f %f %f", diam, rx, ry, rz, mx, my, mz);
             
                 raio = diam/2.0f; /* This is a monodisperse system. */
                 printf("\n Raio: %f ",raio);
 
-            }
-            else
-            {
-                if(fscanf(fileParticles, " %f %f %f %f %f %f %f", &diam, &rx, &ry, &rz, &mx, &my, &mz)==7)
-                {
+            } else {
+                if(fscanf(fileParticles, " %f %f %f %f %f %f %f", &diam, &rx, &ry, &rz, &mx, &my, &mz) == 7) {
                     printf("\n D, rx, ry, rz, mx, my, mz: %f %f %f %f %f %f %f", diam, rx, ry, rz, mx, my, mz);
-                }
-                else
-                {
+                } else {
                     printf("\n Failed to read from fileParticles.\n");
                 }
             }
 
-                        printf("raio: %f",raio);
+            printf("raio: %f",raio);
 
             eqn0[iParticle][0][0] = mx;
             eqn0[iParticle][0][1] = my;
@@ -189,11 +161,6 @@ void display(void)
         }
 
         glFlush();
-
-        /*
-      printf("\n Press Any Key to Continue \n");  
-      getchar();
-         */
 
         glPushMatrix();
 
@@ -246,16 +213,13 @@ void display(void)
         glPopMatrix();
 
         glFlush();
+    }
 
-        /*
-      printf("\n Press Any Key to Continue\n");  
-      getchar();
-         */
-
+    if(fileParticles) {
+        fclose(fileParticles);
     }
 
     printf("\n THE END \n");
-
 }
 
 static void keyboard(unsigned char key, int x, int y)
@@ -292,19 +256,15 @@ static void keyboard(unsigned char key, int x, int y)
     }
 }
 
-void reshape(int w, int h)
-{
+void reshape(int w, int h) {
     float Lx, Ly, Lz;
 
     FILE * fileBox;
     fileBox = fopen(fileBoxName, "r");
 
     rewind(fileBox);
-    if(fscanf(fileBox, "%f %f %f", &Lx, &Ly, &Lz)==3)
-    {
-    }
-    else
-    {
+    if(fscanf(fileBox, "%f %f %f", &Lx, &Ly, &Lz)==3) {
+    } else {
         printf("\n Failed to read from fileIons.\n");
     }
 
@@ -317,11 +277,6 @@ void reshape(int w, int h)
     else
         glOrtho(-1.0e0 * Lx, 1.0e0 * Lx * w / h, -1.0e0 * Ly, 1.0e0 * Ly, -1.7e0 * Lz, 1.3e0 * Lz);
 
-/*    if (w <= h) 
-        gluOrtho2D (-1.0e0 * Lx, 1.0e0 * Lx, -1.0e0 * Ly, 1.0e0 * Ly * h / w);
-    else 
-        gluOrtho2D (-1.0e0 * Lx, 1.0e0 * Lx * w / h, -1.0e0 * Ly, 1.0e0 * Ly ); */
-    
 
     float eyeDist, atDist;
 
@@ -332,11 +287,10 @@ void reshape(int w, int h)
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-        glTranslatef(Lx,Ly,Lz);
+    glTranslatef(Lx,Ly,Lz);
 }
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(500, 500);
@@ -350,5 +304,3 @@ int main(int argc, char** argv)
     glutMainLoop();
     return 0;
 }
-
-
